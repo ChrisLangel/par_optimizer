@@ -1,5 +1,5 @@
 C
-C     Program that writes data in P3d format 
+C     Program that writes test data in P3d format 
 C     HEADER: Jtot,Ktot,Ltot,NumQvar 
 C      
       PROGRAM WRITEQ
