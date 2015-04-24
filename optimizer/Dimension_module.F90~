@@ -1,0 +1,13 @@
+      MODULE DIMEN_MOD
+!
+!
+      IMPLICIT NONE
+!
+!      include 'mpif.h'
+      INTEGER, SAVE :: RK,N,M,TOTGRID,NPROCS,TOTALP            
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: GRDPTS
+      CHARACTER(120),ALLOCATABLE,DIMENSION(:) :: cnames 
+!
+      END MODULE DIMEN_MOD
+
+

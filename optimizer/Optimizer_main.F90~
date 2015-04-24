@@ -1,0 +1,49 @@
+      PROGRAM OPTIMIZE
+!
+! 
+      USE DIMEN_MOD 
+!      USE GRID_MOD
+!      USE PROJ_MOD
+!      USE VOL_MOD
+!      USE SECPROJ_MOD
+!      USE SECDERIV_MOD
+!      USE TIMEMARCH_MOD
+!      USE RESID_MOD
+!      USE CONNECT_MOD
+!      USE COM_MOD
+!
+      IMPLICIT NONE
+      include 'mpif.h'
+      INTEGER :: I,J,G,K,IERR,RANK,RC,NUMPROC, &
+     &            clock_max,clock_rate     
+      REAL(KIND=8) :: wall_time,MRESD,clock_start,clock_end
+      CHARACTER(80) :: residname,qname,cname
+!
+!
+!    ########## MPI INIT (Including Domain Partitioning) ################
+!     
+      CALL MPI_INIT(IERR)
+!     
+      IF (IERR .NE. MPI_SUCCESS) THEN
+         print *,'Error starting MPI program. Terminating.'
+         CALL MPI_ABORT(MPI_COMM_WORLD, RC, IERR)
+      END IF 
+!
+      CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NUMPROC, IERR)
+      CALL MPI_COMM_RANK(MPI_COMM_WORLD, RANK, IERR)
+!
+      RK = RANK
+      NPROCS = NUMPROC
+!  
+!     Have root processor partition domain and write out conectivity files
+      IF (RANK == 0) THEN 
+         CALL DIVIDEGRID 
+      END IF 
+! 
+
+      CALL MPI_FINALIZE(IERR)
+
+!
+      STOP
+      END
+!

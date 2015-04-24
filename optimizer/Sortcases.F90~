@@ -1,0 +1,32 @@
+      SUBROUTINE SORTCASES
+!
+      USE DIMEN_MOD
+!
+      IMPLICIT NONE
+!     
+      INTEGER :: I,TEMP,IDEAL,HALF 
+      LOGICAL :: SORTED
+      CHARACTER(120) :: tempstring 
+!
+!     Sort the cases by how many points per case
+      SORTED = .FALSE. 
+      DO WHILE (SORTED .eqv. .FALSE.)
+      SORTED = .TRUE. 
+         DO I = 1,NUMCASES-1
+            IF ( GRDPTS(I+1) < GRDPTS(I) ) THEN 
+               TEMP        = GRDPTS(I+1)
+               tempstring  = cnames(I+1)   
+               GRDPTS(I+1) = GRDPTS(I)
+               GRDPTS(I)   = TEMP
+               cnames(I+1) = cnames(I) 
+               cnames(I)   = tempstring
+               SORTED      = .FALSE. 
+            END IF 
+         END DO 
+      END DO
+!
+      IDEAL = TOTALP/NPROCS
+      HALF  = NUMCASES/2
+      WRITE(*,*) IDEAL,HALF
+!
+      END SUBROUTINE

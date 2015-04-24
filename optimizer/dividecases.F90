@@ -1,0 +1,84 @@
+      SUBROUTINE DIVIDECASES
+!
+!     Read list of cases, try and balance the load as best as possible.  
+!     This function will only be called on the root processor.   
+! 
+      USE DIMEN_MOD
+!
+      IMPLICIT NONE
+!   
+      TYPE NODE
+         TYPE(NODE), POINTER :: next
+         INTEGER             :: PTS
+         CHARACTER(120)      :: title 
+      END TYPE NODE 
+!
+      TYPE(NODE), POINTER :: FElem,AElem  
+      INTEGER :: I
+      INTEGER :: NJ,NK,NL,JS,JE,KS,KE,POINTS,IO
+      CHARACTER(120) :: casename,filename
+!
+!
+!     Initialize some variables
+      TOTALP   = 0 
+      NUMCASES = 0
+      IO       = 1 
+!   
+      ALLOCATE( FElem )
+!
+!     Read file with list of cases we are looking at,  
+      OPEN (FILE='cases.txt',UNIT=1,STATUS='OLD',ACTION='READ', & 
+     &       FORM='FORMATTED')  
+!
+!     Start reading each line DO...
+      DO WHILE (IO >= 0) 
+         READ(1,10,IOSTAT=IO) casename ! Read case name and open file 
+10       FORMAT(A)
+         IF (IO >= 0) THEN             ! Make sure we have not hit end of file
+            NUMCASES = NUMCASES + 1
+!            WRITE(*,*) casename
+            OPEN(file=casename,UNIT=2,STATUS='OLD',ACTION='READ', & 
+     &           FORM='UNFORMATTED')  
+!     Read header to see how many points for that case (Need to change depending on header format)            
+            READ(2)
+            READ(2)  
+            READ(2) NJ,NK,NL,JS,JE,KS,KE 
+            POINTS = (JE-JS)*(KE-KS)
+!     Generate linked list of number of points for each case
+            IF (NUMCASES == 1) THEN
+               FElem%PTS   = POINTS
+               FElem%TITLE = casename 
+               AElem       => FElem 
+            ELSE 
+               ALLOCATE(AElem%next) 
+               AElem%next%PTS   = POINTS
+               AElem%next%TITLE = casename  
+               AElem            => AElem%next 
+            END IF
+            TOTALP  = TOTALP + POINTS
+            CLOSE(2)
+         END IF  
+      END DO 
+      NULLIFY(AElem%next) 
+!
+!     Go through linked list and load into array
+      ALLOCATE(GRDPTS(NUMCASES),cnames(NUMCASES)) 
+      AElem => FElem
+      DO I = 1,NUMCASES
+         GRDPTS(I) = AElem%PTS
+         cnames(I) = AElem%TITLE
+         AElem => AElem%next 
+      END DO 
+!
+!     Sort cases by number of points (perhaps do load balancing here) 
+      CALL SORTCASES
+!
+!      WRITE(*,*) 'After Sort Case'
+!      DO I = 1,NUMCASES
+!         WRITE(*,*) GRDPTS(I),cnames(I) 
+!      END DO 
+!     Know how many points total, so start to divide onto each processor
+!           
+!
+      END SUBROUTINE
+

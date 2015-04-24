@@ -1,0 +1,18 @@
+# Which type of optimizer are we using (QN,GRAD) ... (Quasi-Newton,Gradient decsent)
+OPTYPE   = QN
+
+# Intital condition for param vector (use square brackets) 
+PMVEC = [0.30, 2.0, 1.10] 
+
+# Finite difference gradient step
+# DIFFSTEP = 1E-12
+DIFFSTEP = 1E-12
+
+# Optimizer settings
+STEPFRAC = 0.9 
+MAXITS   = 250
+TOL      = 1E-10
+
+# Norm constants
+INTNCN = 1.0     # constant for int norm
+PTNCON = 0.0001   # constant for pt wise norm 

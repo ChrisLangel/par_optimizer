@@ -1,0 +1,6 @@
+#! /bin/bash
+
+mpif90 Dimension_module.F90 Param_module.F90 Sort_Module.F90 input.F90 grid_module.F90 volume_module.F90 case_module.F90 func_module.F90 norm_module.F90 opt_module.F90 dividecases.F90 read_input.F90 Sortcases.F90 getgrid.F90 Optimizer_main.F90
+
+
+
