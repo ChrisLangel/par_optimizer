@@ -119,7 +119,10 @@
       IF (RANK == 0) THEN 
          PRINT*,'Solver wall clocktime (seconds)',wall_time
       END IF 
-        
+!      
+!     Write a file that contains the difference between desired and what
+!     the output would be with current functions  
+      CALL WRITEDIFF      
 !              
       IF (RK == 0) THEN 
          CLOSE (UNIT=999, STATUS="DELETE")

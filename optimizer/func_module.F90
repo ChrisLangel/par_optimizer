@@ -57,6 +57,65 @@
 !        ---------------------------------------------------------------
 !         ******* End of function we are actually optimizing *************
 !        ---------------------------------------------------------------
+
+!
+          SUBROUTINE WRITEDIFF
+          USE DIMEN_MOD
+          IMPLICIT NONE
+          INTEGER :: N,I,J,K 
+          INTEGER :: IUNIT 
+          CHARACTER(80) :: outname 
+          REAL(KIND=8) :: ftemp 
+          REAL(KIND=8),DIMENSION(:,:),ALLOCATABLE :: DIFFAR
+          REAL(KIND=8),DIMENSION(:,:,:),ALLOCATABLE :: TVARS
+!           
+          DO N = 1,NLCASE
+!            Allocate temporary array that will store info from file   
+                     
+             K = 4 ! Number of different vars in array #####   
+             IF( .NOT. ALLOCATED(TVARS) ) THEN
+                ALLOCATE( TVARS(GIT(N),GJT(N),K) ) 
+             END IF 
+!             
+             IUNIT = (RK*10)+NPROCS*10 
+!             WRITE(*,*) 'Look at casename', casename,IUNIT 
+             OPEN(FILE=lcnames(N),UNIT=IUNIT,STATUS='OLD',&
+     &             ACTION='READ',FORM='UNFORMATTED')
+             REWIND(IUNIT) 
+             READ(IUNIT)  ! Read lines from header 
+             READ(IUNIT)
+             READ(IUNIT)
+!            Read actual array that contains vars             
+             READ(IUNIT) TVARS 
+!
+             CLOSE(IUNIT) 
+             IF ( .NOT. ALLOCATED(DIFFAR) ) THEN 
+                ALLOCATE( DIFFAR(GIT(N),GJT(N)) )
+             END IF  
+!            Go through and compute the difference at all points
+             DO J = 1, GJT(N) 
+                DO I = 1,GIT(N) 
+                   CALL FUNC(ftemp,TVARS(I,J,1),TVARS(I,J,2), &
+     &                       TVARS(I,J,3)  ) 
+                   
+                   DIFFAR(I,J) = ftemp - TVARS(I,J,4) 
+                END DO 
+             END DO 
+             outname = trim(lcnames(N)) // "_DIFF"
+
+!            Write out the difference array to file
+             OPEN(IUNIT,FILE=outname,STATUS='REPLACE', &
+     &           FORM='UNFORMATTED')
+             WRITE(IUNIT) GIT(N),GJT(N)
+             WRITE(IUNIT) DIFFAR 
+!             
+             CLOSE(IUNIT) 
+             DEALLOCATE( DIFFAR ) 
+          END DO
+          END SUBROUTINE WRITEDIFF 
+! 
+!
+!
       END MODULE FUNC_MOD
 
 
