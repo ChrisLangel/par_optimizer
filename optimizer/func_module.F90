@@ -45,10 +45,10 @@
 !
 !
           IF (LBT .GT. 1.0D0) THEN
-             FVAL = (PMVEC(1)+PMVEC(5)*AR)*FTH*(AR**PMVEC(3)) + &
+             FVAL = (PMVEC(1))*FTH*(AR**PMVEC(3)) + &
      &              PMVEC(2)*((1.0D0/LBT)**PMVEC(4))*(1-FTH)*AR 
           ELSE  
-             FVAL = (PMVEC(1)+PMVEC(5)*AR)*FTH*(AR**PMVEC(3)) + &
+             FVAL = (PMVEC(1))*FTH*(AR**PMVEC(3)) + &
      &              PMVEC(2)*(1.0D0/LBT)*(1-FTH)*AR
           END IF  
 !        
@@ -61,13 +61,13 @@
 !
           SUBROUTINE WRITEDIFF
           USE DIMEN_MOD
+          USE PARAM_MOD
           IMPLICIT NONE
           INTEGER :: N,I,J,K 
           INTEGER :: IUNIT 
           CHARACTER(80) :: outname 
-          REAL(KIND=8) :: ftemp 
-          REAL(KIND=8),DIMENSION(:,:),ALLOCATABLE :: DIFFAR
-          REAL(KIND=8),DIMENSION(:,:,:),ALLOCATABLE :: TVARS
+          REAL(KIND=8) :: functemp 
+          REAL(KIND=8),DIMENSION(:,:,:),ALLOCATABLE :: TVARS,DIFFAR
 !           
           DO N = 1,NLCASE
 !            Allocate temporary array that will store info from file   
@@ -90,19 +90,20 @@
 !
              CLOSE(IUNIT) 
              IF ( .NOT. ALLOCATED(DIFFAR) ) THEN 
-                ALLOCATE( DIFFAR(GIT(N),GJT(N)) )
+                ALLOCATE( DIFFAR(GIT(N),GJT(N),3) )
              END IF  
 !            Go through and compute the difference at all points
              DO J = 1, GJT(N) 
                 DO I = 1,GIT(N) 
-                   CALL FUNC(ftemp,TVARS(I,J,1),TVARS(I,J,2), &
-     &                       TVARS(I,J,3)  ) 
-                   
-                   DIFFAR(I,J) = ftemp - TVARS(I,J,4) 
+                   CALL FUNC(functemp,TVARS(I,J,1),TVARS(I,J,3), &
+     &                       TVARS(I,J,2)  ) 
+                   DIFFAR(I,J,1) = TVARS(I,J,4)
+                   DIFFAR(I,J,2) = functemp
+                   DIFFAR(I,J,3) = functemp - TVARS(I,J,4)
                 END DO 
              END DO 
              outname = trim(lcnames(N)) // "_DIFF"
-
+!             WRITE(*,*) PMVEC(1),PMVEC(2),PMVEC(3),PMVEC(4) 
 !            Write out the difference array to file
              OPEN(IUNIT,FILE=outname,STATUS='REPLACE', &
      &           FORM='UNFORMATTED')
