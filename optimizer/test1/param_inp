@@ -2,17 +2,22 @@
 OPTYPE   = QN
 
 # Intital condition for param vector (use square brackets) 
-PMVEC = [5.0, 5.0, 0.35, .60] 
+ PMVEC = [3.1085633653, 3.8970842152, 0.4069742573, 0.6428991919, 0.0007994575, 0.0072808104]
+# PMVEC = [10.0, 10.0, 1.0, 1.0, 1.0, 1.0]
 
-# Finite difference gradient step
 # DIFFSTEP = 1E-12
 DIFFSTEP = 1E-8
 
 # Optimizer settings
-STEPFRAC = 0.9  # The multiplier during the line search   
-MAXITS   = 100
+STEPFRAC = 0.85  # The multiplier during the line search   
+MAXITS   = 5
 TOL      = 1E-10
 
 # Norm constants
-INTNCN = 0.10     # constant for int norm
-PTNCON = 0.01   # constant for pt wise norm 
+INTNCN = 0.010     # constant for int norm
+PTNCON = 0.001   # constant for pt wise norm
+
+
+
+
+ 

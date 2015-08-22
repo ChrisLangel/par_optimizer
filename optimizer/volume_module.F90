@@ -13,7 +13,7 @@
          REAL(KIND=8) :: HALF
 !
 !
-         HALF = 0.05D0 
+         HALF = 0.5D0 
          DO K = 1,NLGRIDS
             IE = GEI(K) - GSI(K) 
             JE = GEJ(K) - GSJ(K)       

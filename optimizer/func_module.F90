@@ -39,18 +39,34 @@
           USE PARAM_MOD
 !
           IMPLICIT NONE
-          REAL(KIND=8), INTENT(IN) :: LBT,AR,FTH 
+          REAL(KIND=8), INTENT(INOUT) :: LBT,AR,FTH 
           REAL(KIND=8), INTENT(OUT) :: FVAL  
+          REAL(KIND=8) :: ARTEMP
           INTEGER :: I,J,N
+          REAL(KIND=8),PARAMETER :: SCON = 1E-14
 !
 !
+!
+          IF (PMVEC(3) .LT. 0.0) THEN
+             ARTEMP = AR
+             AR     = MAX(SCON,ARTEMP)
+          END IF
+!          
           IF (LBT .GT. 1.0D0) THEN
-             FVAL = (PMVEC(1))*FTH*(AR**PMVEC(3)) + &
-     &              PMVEC(2)*((1.0D0/LBT)**PMVEC(4))*(1-FTH)*AR 
-          ELSE  
-             FVAL = (PMVEC(1))*FTH*(AR**PMVEC(3)) + &
-     &              PMVEC(2)*(1.0D0/LBT)*(1-FTH)*AR
-          END IF  
+             FVAL = (PMVEC(1)+PMVEC(5)*AR)*FTH*(AR**(PMVEC(3))) + &
+     &       (PMVEC(2)+PMVEC(6)*AR)*((1.0D0/LBT)**PMVEC(4))*(1-FTH)*AR
+          ELSE
+             FVAL = (PMVEC(1)+PMVEC(5)*AR)*FTH*(AR**(PMVEC(3))) + &
+     &              (PMVEC(2)+PMVEC(6)*AR)*(1.0D0/LBT)*(1-FTH)*AR
+          END IF
+!
+!          IF (LBT .GT. 1.0D0) THEN
+!             FVAL = (PMVEC(1))*FTH*(AR**PMVEC(3)) + &
+!     &              PMVEC(2)*((1.0D0/LBT)**PMVEC(4))*(1-FTH)*AR 
+!          ELSE  
+!             FVAL = (PMVEC(1))*FTH*(AR**PMVEC(3)) + &
+!     &              PMVEC(2)*(1.0D0/LBT)*(1-FTH)*AR
+!          END IF  
 !        
           END SUBROUTINE FUNC
 !
@@ -64,9 +80,9 @@
           USE PARAM_MOD
           IMPLICIT NONE
           INTEGER :: N,I,J,K 
-          INTEGER :: IUNIT 
+          INTEGER :: IUNIT,NVAR
           CHARACTER(80) :: outname 
-          REAL(KIND=8) :: functemp 
+          REAL(KIND=8) :: functemp,NUMER
           REAL(KIND=8),DIMENSION(:,:,:),ALLOCATABLE :: TVARS,DIFFAR
 !           
           DO N = 1,NLCASE
@@ -87,7 +103,8 @@
              READ(IUNIT)
 !            Read actual array that contains vars             
              READ(IUNIT) TVARS 
-!
+!          
+             NVAR = 3
              CLOSE(IUNIT) 
              IF ( .NOT. ALLOCATED(DIFFAR) ) THEN 
                 ALLOCATE( DIFFAR(GIT(N),GJT(N),3) )
@@ -107,7 +124,7 @@
 !            Write out the difference array to file
              OPEN(IUNIT,FILE=outname,STATUS='REPLACE', &
      &           FORM='UNFORMATTED')
-             WRITE(IUNIT) GIT(N),GJT(N)
+             WRITE(IUNIT) GIT(N),GJT(N),NVAR
              WRITE(IUNIT) DIFFAR 
 !             
              CLOSE(IUNIT) 

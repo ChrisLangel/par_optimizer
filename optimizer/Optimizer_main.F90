@@ -62,7 +62,7 @@
       IF (NPROCS == 1) THEN
       CALL GRADFUNC  
       WRITE(*,*) 'The starting value/ Gradvec:',TFVAL,GRADVEC(1),&
-     &                                       GRADVEC(2),GRADVEC(3)
+     &     GRADVEC(2),GRADVEC(3),GRADVEC(4),GRADVEC(5),GRADVEC(6) 
       IF (otype (1:2) .eq. 'QN') THEN
          DO WHILE (OPTITER < MAXITS .and. TFVAL > TOL) 
          CALL QUASINEW
@@ -81,14 +81,15 @@
       ELSE !################## MULTI-PROC #############################
       CALL SUMGRAD 
       WRITE(*,*) 'The starting value/ Gradvec:',TFVAL,GRADVEC(1),&
-     &                                     GRADVEC(2),GRADVEC(3) 
+     &     GRADVEC(2),GRADVEC(3),GRADVEC(4),GRADVEC(5),GRADVEC(6) 
       IF (otype(1:2) .eq. 'QN') THEN       
          DO WHILE (OPTITER < MAXITS .and. TFVAL > TOL)  
          CALL QUASINEWP  
          CALL LINESEARCHP
          OPTITER = OPTITER + 1
          DO I = 1,1-RK
-         WRITE(*,10) OPTITER,PMVEC(1),PMVEC(2),TFVAL
+         WRITE(*,10) OPTITER,PMVEC(1),PMVEC(2),PMVEC(3), &
+     &               PMVEC(4),PMVEC(5),PMVEC(6),TFVAL
          END DO 
          END DO
       ELSE  
@@ -97,13 +98,14 @@
          CALL LINESEARCHP
          OPTITER = OPTITER + 1
          DO I = 1,1-RK
-         WRITE(*,10) OPTITER,PMVEC(1),PMVEC(2),TFVAL
+         WRITE(*,10) OPTITER,PMVEC(1),PMVEC(2),PMVEC(3), &
+     &               PMVEC(4),PMVEC(5),PMVEC(6),TFVAL
          END DO 
          END DO 
       END IF  
       END IF 
 
- 10   FORMAT('The value of Params at this Iter: ',I3,2F8.4,F16.12)
+ 10   FORMAT('The value of Params at this Iter: ',I3,7F18.10)
 
 !    ---------------------------------------------------------------
 !
@@ -111,7 +113,7 @@
      &             PMVEC(2),TFVAL
 !      
       WRITE(*,*) 'The final value of Param, FVAL:',OPTITER,PMVEC(1),&
-     &             PMVEC(2),PMVEC(3),PMVEC(4),TFVAL
+     &             PMVEC(2),PMVEC(3),PMVEC(4),PMVEC(5),PMVEC(6),TFVAL
 !
 !              
       clock_end =  MPI_WTIME()
@@ -119,10 +121,9 @@
       IF (RANK == 0) THEN 
          PRINT*,'Solver wall clocktime (seconds)',wall_time
       END IF 
-!      
-!     Write a file that contains the difference between desired and what
-!     the output would be with current functions  
-      CALL WRITEDIFF      
+
+
+      CALL WRITEDIFF       
 !              
       IF (RK == 0) THEN 
          CLOSE (UNIT=999, STATUS="DELETE")
